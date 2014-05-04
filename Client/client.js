@@ -1,32 +1,16 @@
 $(function() {
-  // Canvas draw code
-	var canvas = document.createElement("canvas");
-	canvas.width = 500;
-	canvas.height = 500;
-	document.getElementsByTagName('body')[0].appendChild(canvas);
+	drawShitOnCanvas();
+	var socket  = io.connect('http://localhost:4004'),
+	text = $('#text');
 
-	var context = canvas.getContext('2d');
-	context.fillStyle = "#0000FF";
-	context.fillRect(0,0,500,500);
-	var pic = new Image();
-	pic.onload = function()
-	{
-		context.drawImage(pic, 0, 0, 300, 300);
-	}
+	socket.on('connect', function () {
+		text.html('connected');
+		socket.on('message', function (msg) {
+			text.html(msg);
+		});
+	});
 
-	pic.src = 'images/420praiseit.png';
-
-        var socket  = io.connect('http://localhost:4004'),
-        text = $('#text');
-
-        socket.on('connect', function () {
-            text.html('connected');
-            socket.on('message', function (msg) {
-                text.html(msg);
-            });
-        });
-
-        socket.on('disconnect', function () {
+	socket.on('disconnect', function () {
             text.html('disconnected');
         });
 	
@@ -34,6 +18,27 @@ $(function() {
   var $messages = $('.messages'); // Messages area
   var $inputMessage = $('.inputMessage'); // Input message input box
   var $chatPage = $('.chat.page'); // The chatroom page
+
+  // Draws pic + black border on the canvas.
+  function drawShitOnCanvas () {
+	var canvas = document.createElement("canvas");
+	canvas.width = 500;
+	canvas.height = 500;
+	document.getElementById("canvasDiv").appendChild(canvas);
+	var context = canvas.getContext('2d');
+	context.fillStyle = "#0000FF";
+	context.strokeStyle = "black";
+	context.lineWidth = 10;
+	context.fillRect(0,0,500,500);
+	context.strokeRect(0,0,500,500);
+	var pic = new Image();
+	pic.onload = function()
+	{
+		context.drawImage(pic, 10, 10, 300, 300);
+	}
+
+	pic.src = 'images/420praiseit.png';
+}
 
   // Sends a chat message
   function sendMessage () {
@@ -89,5 +94,4 @@ $(function() {
   socket.on('message', function (data) {
     addChatMessage(data);
   });
-
 });
